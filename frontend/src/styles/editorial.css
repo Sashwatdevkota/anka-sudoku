@@ -47,6 +47,20 @@
     line-height: var(--lh-display);
 }
 
+
+.masthead__brand {
+    min-width: 0;
+}
+
+.masthead__tagline {
+    margin: 0.25rem 0 0;
+    font-family: var(--font-print);
+    font-size: 0.75rem;
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+    color: var(--color-ink-soft);
+}
+
 /* ORIGINAL + flex-wrap (NEW) so AD date, BS date and issue number wrap on
    narrow phones instead of squeezing. */
 .dateline {
@@ -70,6 +84,7 @@
     justify-content: center;
     column-gap: var(--space-5);
     border-top: var(--rule-column);
+
 }
 
 .masthead__nav a {
@@ -126,19 +141,19 @@
    between them (the same rule the desktop sidebar uses). Only the second
    child gets the rule: a third child wraps to the start of a new row, where
    a start-edge rule would be wrong. */
-@media (width >= 40rem) and (width < 60rem) {
+@media (width >=40rem) and (width < 60rem) {
     .broadsheet__side {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .broadsheet__side > :nth-child(2) {
+    .broadsheet__side> :nth-child(2) {
         padding-inline-start: var(--col-gap);
         border-inline-start: var(--rule-column);
     }
 }
 
 /* ORIGINAL. Desktop broadsheet. */
-@media (width >= 60rem) {
+@media (width >=60rem) {
     .broadsheet {
         grid-template-columns: minmax(0, 1fr) 19rem;
     }

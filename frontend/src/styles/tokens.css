@@ -159,7 +159,7 @@
         /* Rules and shape: print has lines, not shadows */
         --rule-column: 1px solid var(--color-rule-soft);
         --rule-section: 2px solid var(--color-rule);
-        --rule-masthead: 4px double var(--color-accent);
+        --rule-masthead: 4px double var(--color-rule);
         --radius-key: 2px;
         /* everything else is square */
         --shadow-key: 0 3px 0 var(--color-rule);
