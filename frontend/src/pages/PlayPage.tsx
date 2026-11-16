@@ -1,13 +1,93 @@
-import SiteHeader from "../components/SiteHeader";
+import { useEffect, useState } from "react";
 
-const utilityControls = [
-  { label: "Notes", icon: "✎" },
-  { label: "Erase", icon: "⌫" },
-  { label: "Undo", icon: "↶" },
-  { label: "Hint", icon: "?" },
-];
+import SiteHeader from "../components/SiteHeader";
+import { dailyPuzzle } from "../data/dailyPuzzle";
+import SudokuBoard from "../components/sudoku/SudokuBoard";
+import NumberPad from "../components/sudoku/NumberPad";
+import GameControls from "../components/sudoku/GameControls";
 
 export default function PlayPage() {
+  const [selectedCell, setSelectedCell] = useState<number | null>(null);
+  const [board, setBoard] = useState<number[]>(dailyPuzzle);
+  const [history, setHistory] = useState<number[][]>([]);
+
+  // Enter a number
+  function handleNumberClick(number: number) {
+    if (selectedCell === null) return;
+    if (dailyPuzzle[selectedCell] !== 0) return;
+    if (board[selectedCell] === number) return;
+
+    setHistory((currentHistory) => [...currentHistory, board]);
+
+    setBoard((currentBoard) => {
+      const updatedBoard = [...currentBoard];
+      updatedBoard[selectedCell] = number;
+      return updatedBoard;
+    });
+  }
+
+  // Erase a number
+  function handleEraseClick() {
+    if (selectedCell === null) return;
+    if (dailyPuzzle[selectedCell] !== 0) return;
+    if (board[selectedCell] === 0) return;
+
+    setHistory((currentHistory) => [...currentHistory, board]);
+
+    setBoard((currentBoard) => {
+      const updatedBoard = [...currentBoard];
+      updatedBoard[selectedCell] = 0;
+      return updatedBoard;
+    });
+  }
+
+  // Undo the previous move
+  function handleUndoClick() {
+    if (history.length === 0) return;
+
+    const previousBoard = history[history.length - 1];
+
+    setBoard(previousBoard);
+    setHistory((currentHistory) => currentHistory.slice(0, -1));
+  }
+
+  // Physical keyboard support
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      // Ignore input fields
+      if (
+        event.target instanceof HTMLElement &&
+        (event.target.tagName === "INPUT" ||
+          event.target.tagName === "TEXTAREA" ||
+          event.target.isContentEditable)
+      ) {
+        return;
+      }
+
+      // Ignore modifier shortcuts
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+
+      // Enter numbers 1–9
+      if (/^[1-9]$/.test(event.key)) {
+        handleNumberClick(Number(event.key));
+      }
+
+      // Erase selected cell
+      if (event.key === "Backspace" || event.key === "Delete") {
+        event.preventDefault();
+        handleEraseClick();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedCell, board]);
+
   return (
     <div className="page">
       <SiteHeader />
@@ -48,11 +128,12 @@ export default function PlayPage() {
         <section className="mx-auto mt-8 grid w-full max-w-4xl items-center gap-6 desktop:grid-cols-[minmax(0,2.2fr)_minmax(12rem,1fr)] desktop:gap-10">
           {/* Sudoku board */}
           <div className="mx-auto w-full max-w-xl">
-            <div className="sd-board">
-              {Array.from({ length: 81 }, (_, index) => (
-                <div key={index} className="sd-cell" />
-              ))}
-            </div>
+            <SudokuBoard
+              puzzle={dailyPuzzle}
+              board={board}
+              selectedCell={selectedCell}
+              onCellSelect={setSelectedCell}
+            />
 
             <p className="mt-3 text-center text-xs text-ink-faint">
               Select a cell to begin solving
@@ -61,37 +142,15 @@ export default function PlayPage() {
 
           {/* Utility controls and number keypad */}
           <div className="mx-auto w-full max-w-xs">
-            {/* Utility controls */}
-            <div className="mb-5 grid grid-cols-4 gap-1 border-y border-ink-faint py-3">
-              {utilityControls.map((control) => (
-                <button
-                  key={control.label}
-                  type="button"
-                  className="flex flex-col items-center gap-1 py-2 text-ink-soft transition-colors hover:text-ink"
-                >
-                  <span className="font-print text-xl">{control.icon}</span>
-
-                  <span className="text-xs">{control.label}</span>
-                </button>
-              ))}
+            <div className="mb-5">
+              <GameControls
+                onEraseClick={handleEraseClick}
+                onUndoClick={handleUndoClick}
+                canUndo={history.length > 0}
+              />
             </div>
 
-            {/* Number keypad */}
-            <div>
-              <p className="kicker mb-3 text-center">Enter a number</p>
-
-              <div className="grid grid-cols-3 gap-1">
-                {Array.from({ length: 9 }, (_, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    className="flex aspect-square items-center justify-center border-0 bg-transparent font-print text-3xl transition-colors hover:bg-paper active:bg-paper"
-                  >
-                    {index + 1}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <NumberPad onNumberClick={handleNumberClick} />
           </div>
         </section>
       </main>

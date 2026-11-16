@@ -221,3 +221,6 @@ __marimo__/
 
 #  Nepali font test page 
 /nepalifonttest.html
+
+# Internal project documentation 
+docs_ignore/
