@@ -1,0 +1,216 @@
+/* ==========================================================================
+   ANKA  Sudoku components                  (frontend/src/styles/sudoku.css)
+
+   The board, its cell states, candidate notes, keypad keys and the numeral
+   flip. Source of truth: docs/design-system/tokens.original.css, sections 6-8
+   (marked ORIGINAL below). Changes from the original are marked NEW.
+
+   LAYER: index.css imports this file with layer(components). Do NOT wrap it
+   in @layer again. Tailwind utilities still beat everything here.
+
+   PRINTED vs WRITTEN: givens are printed (Eczar, ink, heaviest weight);
+   the player's entries are written (Kalam, pen blue). Crimson appears only
+   for mistakes (.is-error) and the primary key (.key--primary).
+   ========================================================================== */
+
+
+/* 1. BOARD ================================================================
+   SIZING (NEW). The original set a fixed width derived from the viewport
+   (min(94vw, 34rem, 78svh)). That ignored the page gutters and the column the
+   board sits in, so it overflowed on phones and in the 60rem broadsheet. Now:
+     width: 100%                     fill the parent's width ...
+     max-width: var(--sd-board-max)  ... but never exceed the design cap
+                                     (34rem, and 78svh so it fits the screen height)
+     aspect-ratio: 1                 always square
+
+   The board is also a size container (container-type: inline-size), so the
+   cells can size their digits from the board's REAL width (see 2. CELLS).
+
+   REQUIREMENT: put the board in a parent with a definite width (a block, or a
+   grid column such as minmax(0, 1fr)). Inside a shrink-to-fit parent (an
+   inline-block, w-max, or an auto-sized grid/flex item) a size container has
+   no intrinsic width and the board can collapse to zero. */
+.sd-board {
+    container-type: inline-size;                /* NEW */
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);         /* NEW: rows match columns exactly */
+    width: 100%;                                /* NEW, was a fixed viewport width */
+    max-width: var(--sd-board-max);             /* NEW */
+    aspect-ratio: 1;
+    border: var(--sd-line-frame);
+    background: var(--color-surface);
+    font-family: var(--font-print);
+    font-variant-numeric: lining-nums tabular-nums;
+}
+
+
+/* 2. CELLS ================================================================
+   ORIGINAL appearance. NEW sizing: 100cqi = 100% of the board's content width
+   (the nearest container), so one cell is exactly 100cqi / 9. The digit is
+   --sd-digit-ratio of a cell and notes are --sd-note-ratio (tokens.css), at
+   every board size. Container units resolve on the element that uses them,
+   which is always inside the board here. */
+.sd-cell {
+    display: grid;
+    place-items: center;
+    min-width: 0;                               /* NEW: never widen a column */
+    margin: 0;
+    padding: 0;
+    appearance: none;
+    font: inherit;
+    font-size: calc(100cqi / 9 * var(--sd-digit-ratio));
+    font-weight: var(--fw-semibold);
+    line-height: 1;
+    color: var(--color-ink);
+    background: transparent;
+    border: 0;
+    border-right: var(--sd-line-cell);
+    border-bottom: var(--sd-line-cell);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* NEW. The base focus ring sits outside the element, where the next cells
+   paint over it. Pull it inside the cell so it is always fully visible. */
+.sd-cell:focus-visible {
+    outline-offset: -3px;
+}
+
+/* ORIGINAL. Heavier lines between the nine 3x3 boxes; the frame covers the
+   outer edge. Relies on the 81 cells being the board's only children, in
+   row order. */
+.sd-cell:nth-child(3n) {
+    border-right: var(--sd-line-box);
+}
+
+.sd-cell:nth-child(9n) {
+    border-right: 0;
+}
+
+.sd-cell:nth-child(n + 19):nth-child(-n + 27),
+.sd-cell:nth-child(n + 46):nth-child(-n + 54) {
+    border-bottom: var(--sd-line-box);
+}
+
+.sd-cell:nth-child(n + 73) {
+    border-bottom: 0;
+}
+
+
+/* 3. DIGITS: printed versus written ======================================= */
+
+/* ORIGINAL. A given: printed by the press. */
+.sd-cell.is-given {
+    font-weight: var(--fw-black);
+}
+
+/* ORIGINAL. The player's entry: written with the pen. */
+.sd-cell.is-entry {
+    font-family: var(--font-pen);
+    font-weight: var(--fw-regular);
+    color: var(--color-pen);
+}
+
+
+/* 4. HIGHLIGHT STATES =====================================================
+   ORIGINAL. Weakest to strongest; equal specificity, so the later rule wins
+   when a cell has several states. Keep this order. */
+.sd-cell.is-related {
+    background: var(--color-related);       /* same row, column or box */
+}
+
+.sd-cell.is-same {
+    background: var(--color-same);          /* same digit as the selection */
+}
+
+.sd-cell.is-selected {
+    background: var(--color-selected);      /* the highlighter */
+}
+
+.sd-cell.is-error {
+    background: var(--color-error-bg);
+    color: var(--color-accent);
+    text-decoration: line-through;          /* never color alone */
+    text-decoration-thickness: 2px;
+}
+
+
+/* 5. CANDIDATE NOTES ======================================================
+   ORIGINAL. A 3x3 mini grid inside the cell. NEW sizing: 100cqi here still
+   measures the board (the cell is not a container), so the note size is
+   --sd-note-ratio of one cell. */
+.sd-notes {
+    display: grid;
+    grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    font-size: calc(100cqi / 9 * var(--sd-note-ratio));
+    font-weight: var(--fw-regular);
+    color: var(--color-ink-soft);
+}
+
+
+/* 6. KEYS =================================================================
+   ORIGINAL. Keypad and game controls: the one place a hard, stamped shadow
+   is allowed. Pressing moves the key down onto its shadow.
+   NEW: --ease-out renamed to --ease-press (tokens.css). */
+.key {
+    min-width: var(--tap-min);
+    min-height: var(--tap-min);
+    padding: var(--space-2) var(--space-3);
+    font: inherit;
+    font-size: var(--step-2);
+    font-weight: var(--fw-semibold);
+    color: var(--color-ink);
+    background: var(--color-surface);
+    border: 2px solid var(--color-rule);
+    border-radius: var(--radius-key);
+    box-shadow: var(--shadow-key);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        transform var(--dur-quick) var(--ease-press),
+        box-shadow var(--dur-quick) var(--ease-press);
+}
+
+.key:active {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 var(--color-rule);
+}
+
+/* ORIGINAL. The primary game action: crimson is allowed here. */
+.key--primary {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+}
+
+
+/* 7. MOTION ===============================================================
+   ORIGINAL. The one orchestrated moment: pressing the numeral toggle.
+   In JS: add .is-flipping to every digit and set style="--i: <cell index 0-80>"
+   for a ripple across the board; swap the glyph at 50% of --dur-flip; remove
+   the class on animationend.
+   NEW: --ease-out renamed to --ease-press. */
+@keyframes numeral-flip {
+    50% {
+        transform: rotateX(90deg);
+    }
+}
+
+.is-flipping {
+    animation: numeral-flip var(--dur-flip) var(--ease-press);
+    animation-delay: calc(var(--i, 0) * 6ms);
+}
+
+/* Reduced motion. tokens.css already sets --dur-flip (and the other
+   durations) to 0ms. NEW: also drop the ripple delay, which would otherwise
+   still hold the last cell back by up to 480ms. The animation is kept at
+   0ms rather than removed, so animationend still fires and the JS that
+   removes .is-flipping keeps working. */
+@media (prefers-reduced-motion: reduce) {
+    .is-flipping {
+        animation-delay: 0ms;
+    }
+}

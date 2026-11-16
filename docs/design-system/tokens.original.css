@@ -1,0 +1,497 @@
+/* ==========================================================================
+   ANK  design tokens + base styles        (frontend/src/styles/tokens.css)
+   Import once, in main.tsx:    import './styles/tokens.css'
+   Set on <html>:               lang="ne" or "en"    data-theme="day" or "night"
+
+   THE IDEA
+   Everything PRINTED is Eczar, the press. Everything the PLAYER WRITES is
+   Kalam in flag blue, the pen. Structure comes from rules, not boxes or
+   shadows. One spot color (crimson) carries the signature rule, the primary
+   action and mistakes. Nothing else is allowed to be red.
+
+   PALETTE, day edition (Night edition overrides sit further down)
+     newsprint    #E8E5D8   page
+     whitestock   #F6F5EE   board and keys, a whiter insert on the page
+     ink          #1E1E1C   type and heavy rules
+     crimson      #B3152F   flag red, darkened to pass AA on paper
+     pen blue     #0F3A9E   flag blue, the player's entries
+     highlighter  #F3DE7E   selected cell
+   Every text pair below was checked against WCAG AA (4.5:1) and board
+   lines against 3:1. Re-check if you change a color.
+
+   TYPE
+     Eczar 400 / 600 / 800   one family for Latin and Devanagari, so the numeral
+                             toggle never changes the typeface
+     Kalam 400 / 700         handwriting, only for what the player writes
+     Scale: major third (1.25). Devanagari is set 10% larger with more leading.
+
+   LAYOUT  (60rem and up; below that it is one column, board first)
+     +----------------------------------------------+
+     |                  MASTHEAD                    |
+     |  date in AD and BS            issue number   |
+     +==============================================+   crimson double rule
+     |  board                    |  difficulty      |
+     |  keypad                   |  timer, hints    |
+     +---------------------------+------------------+
+   ========================================================================== */
+
+
+
+/* 1. TOKENS ================================================================ */
+:root {
+    color-scheme: light;
+
+    /* Base palette (raw values; components never use these directly) */
+    --newsprint: #E8E5D8;
+    --whitestock: #F6F5EE;
+    --ink: #1E1E1C;
+    --crimson: #B3152F;
+    --pen-blue: #0F3A9E;
+    --highlighter: #F3DE7E;
+
+    /* Semantic colors (components use THESE) */
+    --color-paper: var(--newsprint);
+    --color-surface: var(--whitestock);
+    --color-ink: var(--ink);
+    --color-ink-soft: #4A4A44;
+    /* secondary text, 7.1:1 on paper */
+    --color-ink-faint: #62625A;
+    /* captions, 4.9:1 on paper: do not go lighter */
+    --color-rule: var(--ink);
+    /* heavy rules */
+    --color-rule-mid: #8A8674;
+    /* board cell lines, 3.3:1 on surface */
+    --color-rule-soft: #BDB9A8;
+    /* decorative hairlines only */
+    --color-accent: var(--crimson);
+    --color-on-accent: #FFFFFF;
+    --color-pen: var(--pen-blue);
+    --color-focus: var(--pen-blue);
+    --color-success: #2F6B3C;
+    --color-selected: var(--highlighter);
+    --color-related: #EAE7D8;
+    /* same row, column or box as the selection */
+    --color-same: #DCE3F5;
+    /* same digit as the selection */
+    --color-error-bg: #F4CFCF;
+
+    /* Paper grain: faint SVG noise, no image file needed */
+    --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.10'/%3E%3C/svg%3E");
+
+    /* Type families */
+    --font-print: 'Eczar', 'Noto Serif Devanagari', Georgia, 'Times New Roman', serif;
+    --font-pen: 'Kalam', 'Noto Sans Devanagari', 'Segoe Print', cursive;
+
+    /* Weights (only the ones loaded above) */
+    --fw-regular: 400;
+    --fw-semibold: 600;
+    --fw-black: 800;
+
+    /* Type scale: change --ratio and everything below follows */
+    --ratio: 1.25;
+    --step-0: 1rem;
+    --step-1: calc(var(--step-0) * var(--ratio));
+    /* 1.25  */
+    --step-2: calc(var(--step-1) * var(--ratio));
+    /* 1.56  */
+    --step-3: calc(var(--step-2) * var(--ratio));
+    /* 1.95  */
+    --step-4: calc(var(--step-3) * var(--ratio));
+    /* 2.44  */
+    --step-5: calc(var(--step-4) * var(--ratio));
+    /* 3.05  */
+    --step-down: calc(var(--step-0) / var(--ratio));
+    /* 0.80  */
+
+    /* Type roles */
+    --fs-note: var(--step-down);
+    /* captions, candidate notes */
+    --fs-body: var(--step-0);
+    --fs-lead: var(--step-1);
+    --fs-h4: var(--step-1);
+    --fs-h3: var(--step-2);
+    --fs-h2: var(--step-3);
+    --fs-h1: clamp(var(--step-3), 1.1rem + 3.4vw, var(--step-5));
+    /* fluid 1.95 to 3.05rem */
+    --fs-masthead: clamp(2.75rem, 0.8rem + 9vw, 6.5rem);
+
+    --lh-display: 1.05;
+    --lh-heading: 1.2;
+    --lh-body: 1.55;
+    --tracking-display: -0.01em;
+    --measure: 60ch;
+    /* body line length, under 80 */
+
+    /* Space: 4-point scale */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+    --space-8: 4rem;
+
+    /* Rules and shape: print has lines, not shadows */
+    --rule-column: 1px solid var(--color-rule-soft);
+    --rule-section: 2px solid var(--color-rule);
+    --rule-masthead: 4px double var(--color-accent);
+    --radius-key: 2px;
+    /* everything else is square */
+    --shadow-key: 0 3px 0 var(--color-rule);
+    /* hard offset, like a stamped key */
+
+    /* Layout. Breakpoints (not usable in @media as variables): 40rem wide phone, 60rem two columns */
+    --page-max: 72rem;
+    --gutter: clamp(1rem, 4vw, 2rem);
+    --col-gap: clamp(1rem, 3vw, 2rem);
+    --tap-min: 2.75rem;
+    /* minimum touch target, 44px */
+
+    /* Motion: only in response to a touch; see the numeral flip at the bottom */
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --dur-quick: 120ms;
+    --dur-base: 220ms;
+    --dur-flip: 450ms;
+
+    /* Sudoku board: digit and note sizes derive from the board size */
+    --sd-board: min(94vw, 34rem, 78svh);
+    --sd-cell: calc(var(--sd-board) / 9);
+    --sd-digit: calc(var(--sd-cell) * 0.62);
+    --sd-note: calc(var(--sd-cell) * 0.24);
+    --sd-line-cell: 1px solid var(--color-rule-mid);
+    --sd-line-box: 2px solid var(--color-rule);
+    --sd-line-frame: 4px solid var(--color-rule);
+}
+
+
+/* 2. NIGHT EDITION (dark theme: override semantic colors only) ============== */
+:root[data-theme='night'] {
+    color-scheme: dark;
+    --color-paper: #14161B;
+    --color-surface: #1D2027;
+    --color-ink: #EAE6D9;
+    --color-ink-soft: #BAB6A8;
+    --color-ink-faint: #8F8C80;
+    --color-rule: #EAE6D9;
+    --color-rule-mid: #6A6C73;
+    --color-rule-soft: #363A44;
+    --color-accent: #F2687E;
+    --color-on-accent: #14161B;
+    --color-pen: #8DB0FF;
+    --color-focus: #8DB0FF;
+    --color-success: #7CC38D;
+    --color-selected: #4B3F16;
+    --color-related: #252932;
+    --color-same: #243762;
+    --color-error-bg: #4A1D28;
+    --paper-grain: none;
+}
+
+
+/* 3. DEVANAGARI ADJUSTMENTS ================================================
+   Devanagari has no capitals, tall marks above and below the line, and looks
+   smaller at the same font-size. So: set it ~10% larger, give it more leading,
+   and never letter-space it (tracking breaks conjuncts). Never use
+   text-transform: uppercase anywhere in this system. */
+html:lang(ne) {
+    font-size: 110%;
+}
+
+:lang(ne) {
+    --lh-display: 1.3;
+    --lh-heading: 1.4;
+    --lh-body: 1.75;
+    --tracking-display: 0;
+    letter-spacing: 0;
+}
+
+
+/* 4. BASE ================================================================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100svh;
+    background-color: var(--color-paper);
+    background-image: var(--paper-grain);
+    color: var(--color-ink);
+    font-family: var(--font-print);
+    font-weight: var(--fw-regular);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    margin: 0;
+    font-weight: var(--fw-black);
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+}
+
+h1 {
+    font-size: var(--fs-h1);
+    line-height: var(--lh-display);
+}
+
+h2 {
+    font-size: var(--fs-h2);
+    line-height: var(--lh-heading);
+}
+
+h3 {
+    font-size: var(--fs-h3);
+    line-height: var(--lh-heading);
+    font-weight: var(--fw-semibold);
+}
+
+h4 {
+    font-size: var(--fs-h4);
+    line-height: var(--lh-heading);
+    font-weight: var(--fw-semibold);
+}
+
+p {
+    margin: 0 0 var(--space-4);
+    max-width: var(--measure);
+    text-wrap: pretty;
+}
+
+.lead {
+    font-size: var(--fs-lead);
+}
+
+.note {
+    font-size: var(--fs-note);
+    color: var(--color-ink-soft);
+}
+
+a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+}
+
+a:hover {
+    color: var(--color-accent);
+}
+
+:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+
+/* 5. LAYOUT PRIMITIVES ===================================================== */
+.page {
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+}
+
+.masthead {
+    padding-top: var(--space-5);
+    border-bottom: var(--rule-masthead);
+}
+
+.masthead__title {
+    margin: 0;
+    text-align: center;
+    font-size: var(--fs-masthead);
+    line-height: var(--lh-display);
+}
+
+.dateline {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: var(--space-3);
+    padding-block: var(--space-2);
+    border-top: 1px solid var(--color-rule);
+    font-size: var(--fs-note);
+}
+
+.broadsheet {
+    display: grid;
+    gap: var(--space-6) var(--col-gap);
+    padding-block: var(--space-5);
+}
+
+@media (min-width: 60rem) {
+    .broadsheet {
+        grid-template-columns: minmax(0, 1fr) 19rem;
+    }
+
+    .broadsheet__side {
+        padding-inline-start: var(--col-gap);
+        border-inline-start: var(--rule-column);
+    }
+}
+
+/* A section starts with a heavy rule; the rule is the label's frame. */
+.section-head {
+    margin: 0 0 var(--space-3);
+    padding-top: var(--space-2);
+    border-top: var(--rule-section);
+}
+
+
+/* 6. CONTROLS ============================================================== */
+.key {
+    min-width: var(--tap-min);
+    min-height: var(--tap-min);
+    padding: var(--space-2) var(--space-3);
+    font: inherit;
+    font-size: var(--step-2);
+    font-weight: var(--fw-semibold);
+    color: var(--color-ink);
+    background: var(--color-surface);
+    border: 2px solid var(--color-rule);
+    border-radius: var(--radius-key);
+    box-shadow: var(--shadow-key);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out);
+}
+
+.key:active {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 var(--color-rule);
+}
+
+.key--primary {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+}
+
+
+/* 7. SUDOKU BOARD ========================================================== */
+.sd-board {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    width: var(--sd-board);
+    aspect-ratio: 1;
+    border: var(--sd-line-frame);
+    background: var(--color-surface);
+    font-family: var(--font-print);
+    font-variant-numeric: lining-nums tabular-nums;
+}
+
+.sd-cell {
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 0;
+    appearance: none;
+    font: inherit;
+    font-size: var(--sd-digit);
+    font-weight: var(--fw-semibold);
+    line-height: 1;
+    color: var(--color-ink);
+    background: transparent;
+    border: 0;
+    border-right: var(--sd-line-cell);
+    border-bottom: var(--sd-line-cell);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Heavier lines between the nine 3x3 boxes; the frame covers the outer edge. */
+.sd-cell:nth-child(3n) {
+    border-right: var(--sd-line-box);
+}
+
+.sd-cell:nth-child(9n) {
+    border-right: 0;
+}
+
+.sd-cell:nth-child(n + 19):nth-child(-n + 27),
+.sd-cell:nth-child(n + 46):nth-child(-n + 54) {
+    border-bottom: var(--sd-line-box);
+}
+
+.sd-cell:nth-child(n + 73) {
+    border-bottom: 0;
+}
+
+/* Printed digit (given) versus written digit (the player's entry) */
+.sd-cell.is-given {
+    font-weight: var(--fw-black);
+}
+
+.sd-cell.is-entry {
+    font-family: var(--font-pen);
+    font-weight: var(--fw-regular);
+    color: var(--color-pen);
+}
+
+/* Highlight states, weakest to strongest; later rules win */
+.sd-cell.is-related {
+    background: var(--color-related);
+}
+
+.sd-cell.is-same {
+    background: var(--color-same);
+}
+
+.sd-cell.is-selected {
+    background: var(--color-selected);
+}
+
+.sd-cell.is-error {
+    background: var(--color-error-bg);
+    color: var(--color-accent);
+    text-decoration: line-through;
+    /* never color alone */
+    text-decoration-thickness: 2px;
+}
+
+/* Candidate notes: a 3x3 mini grid inside the cell */
+.sd-notes {
+    display: grid;
+    grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    font-size: var(--sd-note);
+    font-weight: var(--fw-regular);
+    color: var(--color-ink-soft);
+}
+
+
+/* 8. MOTION ================================================================
+   The one orchestrated moment: pressing the numeral toggle.
+   In JS: add .is-flipping to every digit and set style="--i: <cell index 0-80>"
+   for a ripple across the board; swap the glyph at 50% of --dur-flip; remove
+   the class on animationend. */
+@keyframes numeral-flip {
+    50% {
+        transform: rotateX(90deg);
+    }
+}
+
+.is-flipping {
+    animation: numeral-flip var(--dur-flip) var(--ease-out);
+    animation-delay: calc(var(--i, 0) * 6ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --dur-quick: 0ms;
+        --dur-base: 0ms;
+        --dur-flip: 0ms;
+    }
+}

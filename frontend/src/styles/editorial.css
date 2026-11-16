@@ -1,0 +1,238 @@
+/* ==========================================================================
+   ANKA  editorial components            (frontend/src/styles/editorial.css)
+
+   The newspaper front page: sheet, masthead, broadsheet columns, section
+   heads, story typography, the primary action and the colophon.
+   Source of truth: docs/design-system/tokens.original.css, section 5
+   (marked ORIGINAL below). Classes marked NEW come from the approved plan.
+
+   LAYER: index.css imports this file with layer(components). Do NOT wrap it
+   in @layer again. Components beat base; Tailwind utilities beat components,
+   so a one-off utility on an element always wins over these classes.
+
+   BREAKPOINTS (match tokens.css):
+     40rem  larger phones / tablets: sidebar sections sit side by side
+     60rem  broadsheet: main column + 19rem sidebar
+
+   COLOR: semantic tokens only. Crimson (--color-accent) appears in exactly
+   two places here: the masthead double rule and .cta. Never add it elsewhere.
+   TYPE: no uppercase, no letter-spacing, no italics (Eczar has none).
+   ========================================================================== */
+
+
+/* 1. THE SHEET ============================================================ */
+
+/* ORIGINAL. One centered container for the whole page. Sections inside it
+   never set their own max-width or side padding. */
+.page {
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+}
+
+
+/* 2. MASTHEAD ============================================================== */
+
+/* ORIGINAL. Wraps title, dateline and nav; ends in the crimson double rule. */
+.masthead {
+    padding-top: var(--space-5);
+    border-bottom: var(--rule-masthead);
+}
+
+/* ORIGINAL. The paper's name; the page's only <h1>. Overrides the base h1 size. */
+.masthead__title {
+    margin: 0;
+    text-align: center;
+    font-size: var(--fs-masthead);
+    line-height: var(--lh-display);
+}
+
+/* ORIGINAL + flex-wrap (NEW) so AD date, BS date and issue number wrap on
+   narrow phones instead of squeezing. */
+.dateline {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: var(--space-3);
+    padding-block: var(--space-2);
+    border-top: 1px solid var(--color-rule);
+    font-size: var(--fs-note);
+}
+
+/* NEW. Section navigation under the dateline. Nav links opt out of the base
+   underline; the current page keeps it everywhere, and hover shows it only on
+   devices that can hover (see the hover block at the end of this section).
+   Each link is a full 44px tap target. */
+.masthead__nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: var(--space-5);
+    border-top: var(--rule-column);
+}
+
+.masthead__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
+    font-weight: var(--fw-semibold);
+    text-decoration-line: none;
+}
+
+.masthead__nav a[aria-current='page'] {
+    text-decoration-line: underline;
+}
+
+/* Hover only where a real pointer can hover, so a tap on a touch screen does
+   not leave a "stuck" underline. Matches Tailwind's hover: variant. */
+@media (hover: hover) {
+    .masthead__nav a:hover {
+        text-decoration-line: underline;
+    }
+}
+
+
+/* 3. BROADSHEET ============================================================
+   Mobile first: one column (lead story, then sidebar sections stacked).
+   40rem: sidebar sections sit side by side under the lead story.
+   60rem: main column + 19rem sidebar separated by a hairline column rule. */
+
+/* ORIGINAL */
+.broadsheet {
+    display: grid;
+    gap: var(--space-6) var(--col-gap);
+    padding-block: var(--space-5);
+}
+
+/* NEW. Lead content (main story + daily puzzle). min-width: 0 lets this grid
+   item shrink below its content's natural width, so long content cannot force
+   the column wider. It does NOT constrain children: a child with a fixed width
+   (such as the Sudoku board) still overflows unless it sizes itself to its
+   container. Board sizing is handled in sudoku.css. */
+.broadsheet__main {
+    min-width: 0;
+}
+
+/* NEW base for the sidebar: its sections (difficulty, how to play) stack. */
+.broadsheet__side {
+    display: grid;
+    align-content: start;
+    gap: var(--space-6) var(--col-gap);
+    min-width: 0;
+}
+
+/* NEW. Tablet: two sidebar sections side by side, with a column rule
+   between them (the same rule the desktop sidebar uses). Only the second
+   child gets the rule: a third child wraps to the start of a new row, where
+   a start-edge rule would be wrong. */
+@media (width >= 40rem) and (width < 60rem) {
+    .broadsheet__side {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .broadsheet__side > :nth-child(2) {
+        padding-inline-start: var(--col-gap);
+        border-inline-start: var(--rule-column);
+    }
+}
+
+/* ORIGINAL. Desktop broadsheet. */
+@media (width >= 60rem) {
+    .broadsheet {
+        grid-template-columns: minmax(0, 1fr) 19rem;
+    }
+
+    .broadsheet__side {
+        padding-inline-start: var(--col-gap);
+        border-inline-start: var(--rule-column);
+    }
+}
+
+
+/* 4. STORY TYPOGRAPHY ===================================================== */
+
+/* ORIGINAL. A section starts with a heavy rule; the rule is the label's frame.
+   Use on the section's heading element; size it with the heading level or a
+   utility (e.g. a smaller heading in the 19rem sidebar). */
+.section-head {
+    margin: 0 0 var(--space-3);
+    padding-top: var(--space-2);
+    border-top: var(--rule-section);
+}
+
+/* NEW. Small label above a headline ("The Daily Challenge"). Replaces the
+   uppercase, letter-spaced, red eyebrows: hierarchy comes from size, weight
+   and ink tone only, so it works unchanged in Devanagari. */
+.kicker {
+    margin: 0 0 var(--space-2);
+    font-size: var(--fs-note);
+    font-weight: var(--fw-semibold);
+    line-height: var(--lh-heading);
+    color: var(--color-ink-soft);
+}
+
+/* NEW. The introductory paragraph under a headline. Owns its own measure and
+   spacing, since base.css no longer gives every <p> a width or margin. */
+.standfirst {
+    max-width: var(--measure);
+    margin: var(--space-4) 0 0;
+    font-size: var(--fs-lead);
+    line-height: var(--lh-body);
+    color: var(--color-ink-soft);
+}
+
+
+/* 5. PRIMARY ACTION ========================================================
+   NEW. The one crimson button per view (e.g. "Start today's puzzle").
+   Works on <a> and <button>. Square, flat, no shadow: print, not app chrome.
+   It opts out of the link underline; hover brings a 2px underline back
+   (the same hover language as text links). Keyboard focus uses the base
+   :focus-visible outline in pen blue, offset clear of the crimson. */
+.cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--tap-min);
+    padding: var(--space-3) var(--space-5);
+    font: inherit;
+    font-size: var(--fs-body);
+    font-weight: var(--fw-semibold);
+    line-height: var(--lh-heading);
+    color: var(--color-on-accent);
+    background-color: var(--color-accent);
+    border: 0;
+    text-decoration-line: none;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+}
+
+@media (hover: hover) {
+    .cta:hover {
+        text-decoration-line: underline;
+    }
+}
+
+
+/* 6. COLOPHON ==============================================================
+   NEW. The footer: same paper as the page, opened by a heavy rule instead
+   of a dark block. Small, quiet type. Only links inside a <nav> behave like
+   nav links; links in ordinary footer text keep the base underline. */
+.colophon {
+    margin-top: var(--space-7);
+    padding-block: var(--space-5) var(--space-6);
+    border-top: var(--rule-section);
+    font-size: var(--fs-note);
+    color: var(--color-ink-soft);
+}
+
+.colophon nav a {
+    text-decoration-line: none;
+}
+
+@media (hover: hover) {
+    .colophon nav a:hover {
+        text-decoration-line: underline;
+    }
+}

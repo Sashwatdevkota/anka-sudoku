@@ -1,0 +1,140 @@
+/* ==========================================================================
+   ANKA  base styles                          (frontend/src/styles/base.css)
+
+   Element defaults for the whole site, built on the variables in tokens.css.
+   Source of truth: docs/design-system/tokens.original.css, sections 3 and 4
+   (plus color-scheme from section 1), with these deliberate departures:
+     - Links are underlined by default (Preflight removes the browser's).
+     - Links no longer turn crimson on hover: crimson is reserved for the
+       masthead rule, the primary action and mistakes.
+     - Paragraphs carry no margin or max-width here; spacing and measure are
+       set by editorial classes, so flex/grid/centered layouts are not affected.
+
+   LAYER: index.css imports this file with layer(base), so every rule below
+   already sits in Tailwind's base layer. Do NOT wrap it in @layer base again
+   (that would create a nested base.base layer). Because base comes before
+   utilities, any Tailwind class on an element still wins over these rules.
+
+   PREFLIGHT: Tailwind's reset already handles box-sizing, margin: 0 on every
+   element, -webkit-text-size-adjust, and color/text-decoration: inherit on
+   links. Those are not repeated here.
+
+   No editorial layout classes (editorial.css) and no Sudoku styles (sudoku.css).
+   ========================================================================== */
+
+
+/* 1. DOCUMENT ============================================================== */
+:root {
+    color-scheme: light;
+    /* day edition only for now */
+}
+
+body {
+    min-height: 100svh;
+    background-color: var(--color-paper);
+    background-image: var(--paper-grain);
+    color: var(--color-ink);
+    font-family: var(--font-print);
+    font-weight: var(--fw-regular);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+}
+
+
+/* 2. DEVANAGARI ADJUSTMENTS ================================================
+   Devanagari has no capitals, tall marks above and below the line, and looks
+   smaller at the same font-size. So: set it ~10% larger, give it more leading,
+   and never letter-space it (tracking breaks conjuncts). Never use
+   text-transform: uppercase anywhere in this system.
+   Note: 110% on <html> scales every rem, so spacing and the board grow too. */
+html:lang(ne) {
+    font-size: 110%;
+}
+
+:lang(ne) {
+    --lh-display: 1.3;
+    --lh-heading: 1.4;
+    --lh-body: 1.75;
+    --tracking-display: 0;
+    letter-spacing: 0;
+}
+
+
+/* 3. HEADINGS ============================================================== */
+h1,
+h2,
+h3,
+h4 {
+    font-weight: var(--fw-black);
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+}
+
+h1 {
+    font-size: var(--fs-h1);
+    line-height: var(--lh-display);
+}
+
+h2 {
+    font-size: var(--fs-h2);
+    line-height: var(--lh-heading);
+}
+
+h3 {
+    font-size: var(--fs-h3);
+    line-height: var(--lh-heading);
+    font-weight: var(--fw-semibold);
+}
+
+h4 {
+    font-size: var(--fs-h4);
+    line-height: var(--lh-heading);
+    font-weight: var(--fw-semibold);
+}
+
+
+/* 4. TEXT ==================================================================
+   Font, color and line-height are inherited from body. Spacing between
+   paragraphs and line length (--measure, --space-*) belong to editorial
+   classes such as .standfirst or an article body, not to every <p>. */
+p {
+    text-wrap: pretty;
+}
+
+.lead {
+    font-size: var(--fs-lead);
+}
+
+.note {
+    font-size: var(--fs-note);
+    color: var(--color-ink-soft);
+}
+
+
+/* 5. LINKS AND FOCUS =======================================================
+   Ordinary text links are underlined in the text color, so they never rely
+   on color alone (WCAG 1.4.1). Hover thickens the underline instead of
+   changing color: crimson stays reserved.
+   OPT OUT: navigation and button-style links remove the underline with their
+   own class in editorial.css (components layer) or the no-underline utility.
+   Both layers come after base, so they win without extra specificity. */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Hover only where a real pointer can hover, so a tap on a touch screen does
+   not leave a "stuck" thick underline. Matches Tailwind's hover: variant. */
+@media (hover: hover) {
+    a:hover {
+        text-decoration-thickness: 2px;
+        /* matches the 2px section rule */
+    }
+}
+
+:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+}
