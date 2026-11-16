@@ -21,41 +21,31 @@ const steps = [
 
 export default function HowToPlaySection() {
   return (
-    <section className="border-t border-stone-300 bg-stone-50 px-6 py-24">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-16 max-w-2xl">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-red-900">
-            A Guide for Beginners
-          </p>
+    <section className="mt-8  pt-6">
+      <div className="section-head">
+        <p className="kicker pt-6">A Beginner's Guide</p>
+        <h2 className="font-print text-3xl font-bold">How to play Sudoku.</h2>
+      </div>
 
-          <h2 className="font-serif text-4xl font-bold text-stone-900 md:text-5xl">
-            A simple game.
-            <br />A thoughtful challenge.
-          </h2>
+      <p className="my-4 leading-relaxed text-ink-soft">
+        New to Sudoku? The rules are simple. All you need is patience and
+        logical thinking.
+      </p>
 
-          <p className="mt-6 leading-relaxed text-stone-600">
-            New to Sudoku? No problem. The rules are simple. All you need is a
-            little patience and logical thinking.
-          </p>
-        </div>
+      <div className="divide-y divide-ink-faint">
+        {steps.map((step) => (
+          <article key={step.number} className="py-5">
+            <span className="font-print text-3xl text-crimson">
+              {step.number}
+            </span>
 
-        <div className="grid gap-10 md:grid-cols-3">
-          {steps.map((step) => (
-            <div key={step.number} className="border-t-2 border-stone-300 pt-6">
-              <span className="font-serif text-4xl text-red-900">
-                {step.number}
-              </span>
+            <h3 className="mt-2 font-print text-xl font-bold">{step.title}</h3>
 
-              <h3 className="mt-6 font-serif text-2xl font-bold text-stone-900">
-                {step.title}
-              </h3>
-
-              <p className="mt-4 leading-relaxed text-stone-600">
-                {step.description}
-              </p>
-            </div>
-          ))}
-        </div>
+            <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+              {step.description}
+            </p>
+          </article>
+        ))}
       </div>
     </section>
   );

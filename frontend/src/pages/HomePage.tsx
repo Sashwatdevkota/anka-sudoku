@@ -1,18 +1,28 @@
 import SiteHeader from "../components/SiteHeader";
-import HeroSection from "../components/HeroSection";
-import DailyPuzzleSection from "../components/DailyPuzzleSection";
+import LeadStory from "../components/LeadStory";
 import PuzzleCollectionSection from "../components/PuzzleCollectionSection";
 import HowToPlaySection from "../components/HowToPlaySection";
+import DailyPuzzleNote from "../components/DailyPuzzleNote";
 import SiteFooter from "../components/SiteFooter";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="page">
       <SiteHeader />
-      <HeroSection />
-      <DailyPuzzleSection />
-      <PuzzleCollectionSection />
-      <HowToPlaySection />
+
+      <main className="broadsheet">
+        <div className="broadsheet__main">
+          <LeadStory />
+
+          <HowToPlaySection />
+        </div>
+
+        <aside className="broadsheet__side">
+          <PuzzleCollectionSection />
+          <DailyPuzzleNote />
+        </aside>
+      </main>
+
       <SiteFooter />
     </div>
   );
